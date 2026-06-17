@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SpendSense — Expense Tracker</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- AUTH -->
+  <div id="auth-screen" class="auth-screen">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="brand-icon">₹</div>
+        <h1>SpendSense</h1>
+        <p>Smart Expense Tracking</p>
+      </div>
+      <div class="auth-tabs">
+        <button class="tab-btn active" data-tab="login">Login</button>
+        <button class="tab-btn" data-tab="register">Register</button>
+      </div>
+      <form id="login-form" class="auth-form">
+        <div class="field-group">
+          <label>Email</label>
+          <input type="email" id="login-email" placeholder="you@example.com" required />
+        </div>
+        <div class="field-group">
+          <label>Password</label>
+          <input type="password" id="login-password" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+      </form>
+      <form id="register-form" class="auth-form hidden">
+        <div class="field-group">
+          <label>Name</label>
+          <input type="text" id="reg-name" placeholder="Arvind Kumar" required />
+        </div>
+        <div class="field-group">
+          <label>Email</label>
+          <input type="email" id="reg-email" placeholder="you@example.com" required />
+        </div>
+        <div class="field-group">
+          <label>Password</label>
+          <input type="password" id="reg-password" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+        <p class="auth-hint">First registered user becomes Admin</p>
+      </form>
+      <div id="auth-error" class="error-msg hidden"></div>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="app" class="app hidden">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-icon">₹</span>
+        <span>SpendSense</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-page="dashboard">
+          <span class="nav-icon">◈</span> Dashboard
+        </a>
+        <a href="#" class="nav-item" data-page="expenses">
+          <span class="nav-icon">◉</span> Expenses
+        </a>
+        <a href="#" class="nav-item" data-page="analytics">
+          <span class="nav-icon">◎</span> Analytics
+        </a>
+        <a href="#" class="nav-item admin-only hidden" data-page="admin">
+          <span class="nav-icon">◆</span> Admin Panel
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="user-avatar">A</div>
+          <div>
+            <div class="user-name" id="user-name">User</div>
+            <div class="user-role" id="user-role">user</div>
+          </div>
+        </div>
+        <div class="sidebar-actions">
+          <button class="icon-btn" id="theme-toggle" title="Toggle Dark Mode">◑</button>
+          <button class="icon-btn" id="logout-btn" title="Logout">⏻</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="topbar">
+        <button class="icon-btn" id="menu-toggle">☰</button>
+        <h2 class="page-title" id="page-title">Dashboard</h2>
+        <div class="topbar-actions">
+          <button class="btn btn-primary" id="add-expense-btn">+ Add Expense</button>
+        </div>
+      </div>
+
+      <!-- Dashboard -->
+      <div id="page-dashboard" class="page active">
+        <div class="budget-bar-wrap" id="budget-bar-wrap">
+          <div class="budget-bar-header">
+            <span>Monthly Budget</span>
+            <span id="budget-label">—</span>
+          </div>
+          <div class="budget-track">
+            <div class="budget-fill" id="budget-fill" style="width:0%"></div>
+          </div>
+          <div class="budget-bar-header" style="margin-top:0.35rem">
+            <span id="budget-spent">Spent: ₹0</span>
+            <button class="btn btn-outline btn-sm" id="set-budget-btn">Set Budget</button>
+          </div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card accent">
+            <div class="stat-label">This Month</div>
+            <div class="stat-value" id="stat-month">₹0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Transactions</div>
+            <div class="stat-value" id="stat-count">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Top Category</div>
+            <div class="stat-value" id="stat-top" style="font-size:1.1rem">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Daily Avg</div>
+            <div class="stat-value" id="stat-avg">₹0</div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Spending by Category</h3>
+          <div id="cat-chart"></div>
+        </div>
+        <div class="card">
+          <h3>Recent Expenses</h3>
+          <div id="recent-expenses"></div>
+        </div>
+      </div>
+
+      <!-- Expenses -->
+      <div id="page-expenses" class="page hidden">
+        <div class="toolbar">
+          <input type="text" id="search-input" class="search-input" placeholder="Search expenses…" />
+          <select id="filter-cat" class="select-input">
+            <option value="">All Categories</option>
+            <option>Food</option><option>Transport</option><option>Housing</option>
+            <option>Health</option><option>Entertainment</option><option>Shopping</option>
+            <option>Education</option><option>Utilities</option><option>Other</option>
+          </select>
+          <input type="date" id="filter-from" class="select-input" title="From date" />
+          <input type="date" id="filter-to" class="select-input" title="To date" />
+          <button class="btn btn-outline" id="export-csv-btn">↓ CSV</button>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr><th>Title</th><th>Category</th><th>Amount</th><th>Payment</th><th>Date</th><th>Note</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="exp-tbody"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="pagination"></div>
+      </div>
+
+      <!-- Analytics -->
+      <div id="page-analytics" class="page hidden">
+        <div class="toolbar">
+          <label style="font-size:0.85rem;font-weight:600;color:var(--text2)">Month:</label>
+          <input type="month" id="analytics-month" class="select-input" />
+        </div>
+        <div class="stats-grid" id="analytics-stats"></div>
+        <div class="card">
+          <h3>Daily Spending</h3>
+          <div id="daily-chart"></div>
+        </div>
+        <div class="card">
+          <h3>6-Month Trend</h3>
+          <div id="trend-chart"></div>
+        </div>
+      </div>
+
+      <!-- Admin -->
+      <div id="page-admin" class="page hidden">
+        <div class="admin-tabs">
+          <button class="tab-btn active" data-admin-tab="users">Users</button>
+          <button class="tab-btn" data-admin-tab="overview">Overview</button>
+        </div>
+        <div id="admin-users">
+          <div class="toolbar">
+            <input type="text" id="user-search" class="search-input" placeholder="Search users…" />
+            <button class="btn btn-outline" id="export-users-btn">↓ Export CSV</button>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Budget</th><th>Actions</th></tr></thead>
+              <tbody id="users-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="admin-overview" class="hidden">
+          <div class="stats-grid" id="admin-stats"></div>
+          <div class="card">
+            <h3>Top Categories (All Users)</h3>
+            <div id="admin-cat-chart"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Expense Modal -->
+  <div id="exp-modal" class="modal hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modal-title">Add Expense</h3>
+        <button class="icon-btn modal-close">✕</button>
+      </div>
+      <form id="exp-form" class="modal-form">
+        <div class="form-row">
+          <div class="field-group">
+            <label>Title *</label>
+            <input type="text" id="exp-title" placeholder="Lunch, Uber ride…" required />
+          </div>
+          <div class="field-group">
+            <label>Amount (₹) *</label>
+            <input type="number" id="exp-amount" min="0.01" step="0.01" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field-group">
+            <label>Category *</label>
+            <select id="exp-category" required>
+              <option value="">Select…</option>
+              <option>Food</option><option>Transport</option><option>Housing</option>
+              <option>Health</option><option>Entertainment</option><option>Shopping</option>
+              <option>Education</option><option>Utilities</option><option>Other</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label>Payment Method</label>
+            <select id="exp-payment">
+              <option value="cash">Cash</option>
+              <option value="upi">UPI</option>
+              <option value="card">Card</option>
+              <option value="netbanking">Net Banking</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field-group">
+            <label>Date *</label>
+            <input type="date" id="exp-date" required />
+          </div>
+          <div class="field-group">
+            <label>Note</label>
+            <input type="text" id="exp-note" placeholder="Optional note…" />
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-outline modal-close">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="exp-submit">Save Expense</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Budget Modal -->
+  <div id="budget-modal" class="modal hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-box modal-sm">
+      <div class="modal-header">
+        <h3>Set Monthly Budget</h3>
+        <button class="icon-btn close-budget">✕</button>
+      </div>
+      <div class="field-group" style="padding:1rem 1.5rem">
+        <label>Monthly Budget (₹)</label>
+        <input type="number" id="budget-input" min="0" step="100" placeholder="e.g. 30000" />
+      </div>
+      <div class="modal-actions" style="padding:0 1.5rem 1.5rem">
+        <button class="btn btn-outline close-budget">Cancel</button>
+        <button class="btn btn-primary" id="save-budget-btn">Save Budget</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reset PW Modal -->
+  <div id="reset-modal" class="modal hidden">
+    <div class="modal-overlay"></div>
+    <div class="modal-box modal-sm">
+      <div class="modal-header">
+        <h3>Reset Password</h3>
+        <button class="icon-btn close-reset">✕</button>
+      </div>
+      <input type="hidden" id="reset-user-id" />
+      <div class="field-group" style="padding:1rem 1.5rem">
+        <label>New Password</label>
+        <input type="password" id="reset-password" placeholder="Min 6 characters" />
+      </div>
+      <div class="modal-actions" style="padding:0 1.5rem 1.5rem">
+        <button class="btn btn-outline close-reset">Cancel</button>
+        <button class="btn btn-primary" id="confirm-reset">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="/js/app.js"></script>
+</body>
+</html>
