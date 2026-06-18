@@ -22,10 +22,14 @@ app.use('/api/admin', require('./routes/admin'));
 app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'Expense Tracker' }));
 app.get('/{*path}', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
-getDb().then(() => {
+getDb().catch(err => { console.error('DB init failed:', err); });
+
+if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`\n💰 Expense Tracker`);
     console.log(`   Running at: http://localhost:${PORT}`);
     console.log(`   First user to register becomes Admin\n`);
   });
-}).catch(err => { console.error('DB init failed:', err); process.exit(1); });
+}
+
+module.exports = app;
